@@ -101,7 +101,6 @@ public class Cameo extends PApplet {
 	boolean end;
 	
 	public void setup() {
-		fullScreen();
 		colorMode(HSB, 360, 100, 100);
 		
 		//----MIDI
@@ -242,6 +241,7 @@ public class Cameo extends PApplet {
 	}
 	
 	public void settings(){
+		size(1024, 768);
 		fullScreen();
 	}
 	
@@ -286,8 +286,8 @@ public class Cameo extends PApplet {
 	}
 
 	public void draw() {
-		scale(0.5f);
-		translate(750, 320);
+//		scale(0.5f);
+//		translate(750, 320);
 //		scale(0.65f);
 //		translate(440, 150);
 		update();
