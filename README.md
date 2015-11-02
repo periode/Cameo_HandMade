@@ -1,7 +1,7 @@
 # Cameo_HandMade
 Processing code for live visuals at Cameo Gallery on 15/10/29
 
-https://www.youtube.com/embed/BQmpFuJ80QU
+https://www.youtube.com/watch?v=BQmpFuJ80QU
 
 All the visuals are pre-programmed into classes, and then triggered using midi notes (in noteOn()), or CC values (in controllerChange()), along with some helper functions mapped to keyboard.
 
