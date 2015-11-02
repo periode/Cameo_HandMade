@@ -1,11 +1,10 @@
 # Cameo_HandMade
 Processing code for live visuals at Cameo Gallery on 15/10/29
-
-<iframe width="420" height="315" src="https://www.youtube.com/embed/BQmpFuJ80QU" frameborder="0" allowfullscreen></iframe>
+https://www.youtube.com/embed/BQmpFuJ80QU
 
 All the visuals are pre-programmed into classes, and then triggered using midi notes (in noteOn()), or CC values (in controllerChange()), along with some helper functions mapped to keyboard.
 
-Elements:
+# Elements:
 
 - Particles are the two little squares moving along cosine curves
 - Links are either orthogonal or digonal lines stretching from point in the grid to the other
