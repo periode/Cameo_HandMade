@@ -27,6 +27,22 @@ public class Link {
 	boolean canConnect;
 	boolean decrease;
 	
+	float currentVariation;
+	float currentOffset;
+	float originOffset;
+	
+	float currentOVal;
+	float currentOPeriod;
+	float originOVal;
+	float originOPeriod;
+	
+	float currentDVal;
+	float currentDPeriod;
+	float originDVal;
+	float originDPeriod;
+	
+	boolean canUpdate;
+	
 	Link(){
 		
 	}
@@ -51,37 +67,55 @@ public class Link {
 		speed = _s;
 		color = _c;
 		alpha = 255;
-		sw = 5;
+		sw = 1;
 		
 		lerpVal = 0;
 		lerpInc = speed;
 		
+		currentDPeriod = (int)(p.random(0, 4))*(90);
+		originDPeriod = (int)(p.random(0, 4))*(90);
+		
+		currentOPeriod = (int)(p.random(0, 4))*(90);
+		originOPeriod = (int)(p.random(0, 4))*(90);
+		
 		canConnect = true;
 		decrease = false;
+		canUpdate = true;
 	}
 	
 	void update(){
-		if(lerpVal < 1){
-			current1 = PVector.lerp(origin, destination1, lerpVal);
-			current2 = PVector.lerp(origin, destination2, lerpVal);
-			lerpVal += lerpInc;
-		}else if(lerpVal >= 1-lerpInc){
-			if(canConnect)
-				connect();
+		if(canUpdate){
+			if(lerpVal < 1){
+				current1 = PVector.lerp(origin, destination1, lerpVal);
+				current2 = PVector.lerp(origin, destination2, lerpVal);
+				lerpVal += lerpInc;
+			}else if(lerpVal >= 1-lerpInc){
+				if(canConnect)
+					connect();
+			}
+	
+			if(type == 0){
+				lerpInc = Cameo.linksOLerpInc;
+				sw = Cameo.linksOStrokeWeight;
+				alpha = Cameo.linksOBrightness;
+				currentOffset = PApplet.cos(currentOVal + currentOPeriod*Cameo.linksOCurrentPeriod)*Cameo.linksOCurrentCoeff;
+				currentOVal += Cameo.linksOCurrentInc;
+				originOffset = PApplet.cos(originOVal + originOPeriod*Cameo.linksOOriginPeriod)*Cameo.linksOOriginCoeff;
+				originOVal += Cameo.linksOOriginInc;
+				
+			}else{
+				lerpInc = Cameo.linksDLerpInc;
+				sw = Cameo.linksDStrokeWeight;
+				alpha = Cameo.linksDBrightness;
+				currentOffset = PApplet.cos(currentDVal + currentDPeriod*Cameo.linksDCurrentPeriod)*Cameo.linksDCurrentCoeff;
+				currentDVal += Cameo.linksDCurrentInc;
+				originOffset = PApplet.cos(originDVal + originDPeriod*Cameo.linksDOriginPeriod)*Cameo.linksDOriginCoeff;
+				originDVal += Cameo.linksDOriginInc;
+			}
+			
+			if(decrease)
+				decrease();
 		}
-
-		if(type == 0){
-			lerpInc = Cameo.linksOLerpInc;
-			sw = Cameo.linksOStrokeWeight;
-			alpha = Cameo.linksOBrightness;
-		}else{
-			lerpInc = Cameo.linksDLerpInc;
-			sw = Cameo.linksDStrokeWeight;
-			alpha = Cameo.linksDBrightness;
-		}
-		
-		if(decrease)
-			decrease();
 	}
 	
 	void decrease(){
@@ -140,7 +174,7 @@ public class Link {
 		p.strokeCap(PApplet.PROJECT);
 		p.strokeWeight(sw);
 		p.stroke(color, alpha);
-		p.line(origin.x, origin.y, current1.x, current1.y);
-		p.line(origin.x, origin.y, current2.x, current2.y);
+		p.line(origin.x, origin.y+originOffset, current1.x, current1.y+currentOffset);
+		p.line(origin.x, origin.y+originOffset, current2.x, current2.y-currentOffset);
 	}
 }

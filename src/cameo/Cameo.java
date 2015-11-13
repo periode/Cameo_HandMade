@@ -56,6 +56,23 @@ public class Cameo extends PApplet {
 	static float linksDBrightness;
 	static float linksDLerpInc;
 	
+	static float linksOOriginInc;
+	static float linksOOriginCoeff;
+	static float linksOOriginPeriod;
+	
+	static float linksOCurrentInc;
+	static float linksOCurrentCoeff;
+	static float linksOCurrentPeriod;
+	
+	static float linksDOriginInc;
+	static float linksDOriginCoeff;
+	static float linksDOriginPeriod;
+	
+	static float linksDCurrentInc;
+	static float linksDCurrentCoeff;
+	static float linksDCurrentPeriod;
+	
+	
 	//----PARTICLES
 	ArrayList<Particle> particles;
 	
@@ -78,14 +95,24 @@ public class Cameo extends PApplet {
 	static ArrayList<PVector> cometsLPos;
 	
 	static float cometsScale;
-	float cometsScaleInc;
+	static float cometsScaleInc;
 	static float cometsBrightness;
+	static float cometsBrightnessCoeff;
+	static float cometsBrightnessVal;
+	static float cometsBrightnessInc; 
+	static float cometsBrightnessVariation;
+	float cometsMaxAlpha;
 	static float cometsLerpInc;
 	static float cometsVertexRange;
 	
 	static float cometsLScale;
 	float cometsLScaleInc;
 	static float cometsLBrightness;
+	static float cometsLBrightnessCoeff;
+	static float cometsLBrightnessVal;
+	static float cometsLBrightnessInc;
+	static float cometsLBrightnessVariation;
+	float cometsLMaxAlpha;
 	static float cometsLLerpInc;
 	static float cometsLVertexRange;
 	
@@ -182,12 +209,14 @@ public class Cameo extends PApplet {
 		cometsScaleInc = 0f;
 		cometsVertexRange = xStep*0.25f*0.3f;
 		cometsBrightness = 255;
+		cometsBrightnessInc = 0.1f;
 		cometsLerpInc = 0.005f;
 		
 		cometsLScale = 1;
 		cometsLScaleInc = 0f;
 		cometsLVertexRange = xStep*0.65f*0.2f;
 		cometsLBrightness = 255;
+		cometsLBrightnessInc = 0.1f;
 		cometsLLerpInc = 0.005f;
 		
 		cometsMaxScale = 0;
@@ -241,7 +270,7 @@ public class Cameo extends PApplet {
 	}
 	
 	public void settings(){
-		size(1024, 768);
+		//size(1024, 768);
 		fullScreen();
 	}
 	
@@ -281,8 +310,12 @@ public class Cameo extends PApplet {
 		cosValX += cosIncX;
 		cosValY += cosIncY;
 		
-		cometsScale += cometsScaleInc;
+		cometsScale += 7.5f;
 		cometsLScale += cometsLScaleInc;
+		
+
+		cometsBrightnessVal += cometsBrightnessInc;
+		cometsLBrightnessVal += cometsLBrightnessInc;
 	}
 
 	public void draw() {
@@ -331,7 +364,7 @@ public class Cameo extends PApplet {
 			linksD.get(i).display();
 		}
 		
-		//debug();
+		debug();
 //		textAlign(CENTER);
 //		textSize(64);
 //		fill(255);
@@ -340,6 +373,15 @@ public class Cameo extends PApplet {
 			fill(0);
 			rect(0, 0, width, height);
 		}
+//		stroke(255);
+//		strokeWeight(1);
+//		for(int i = 1; i < particles.size(); i+=3){
+//			for(int j = 0; j < particles.size(); j+=3){
+//				Particle p1 = particles.get(i);
+//				Particle p2 = particles.get(j);
+//				line(p1.pos.x, p1.pos.y, p2.pos.x, p2.pos.y);
+//			}
+//		}
 	}
 	
 	public void addSquare(){
@@ -434,6 +476,16 @@ public class Cameo extends PApplet {
 	}
 	
 	public void addLink(int dir){
+		if(linksO.size() == 0){
+			linksOPos.clear();
+			repopulate(linksOPos);
+		}
+		
+		if(linksD.size() == 0){
+			linksDPos.clear();
+			repopulate(linksDPos);
+		}
+		
 		if(dir == 0 && linksOPos.size() > rows-2){ //----ORTHOGONAL
 			if(linksOPos.size() == rows-1){
 				clearLinks(0);
@@ -646,6 +698,24 @@ public class Cameo extends PApplet {
 		}else if(s == "particleAddIntro"){
 			int i = (int)(random(introParticles.size()));
 			introParticles.get(i).canUpdate = true;
+		}else if(s == "linksO"){
+			for(int i = 0; i < linksO.size(); i++){
+				linksO.get(i).canUpdate = false;
+			}
+			int i = (int)(random(linksO.size()));
+			linksO.get(i).canUpdate = true;
+		}else if(s == "linksOAdd"){
+			int i = (int)(random(linksO.size()));
+			linksO.get(i).canUpdate = true;
+		}else if(s == "linksD"){
+			for(int i = 0; i < linksD.size(); i++){
+				linksD.get(i).canUpdate = false;
+			}
+			int i = (int)(random(linksD.size()));
+			linksD.get(i).canUpdate = true;
+		}else if(s == "linksDAdd"){
+			int i = (int)(random(linksD.size()));
+			linksD.get(i).canUpdate = true;
 		}
 	}
 	
@@ -658,10 +728,18 @@ public class Cameo extends PApplet {
 			for(int i = 0; i < introParticles.size(); i++){
 				introParticles.get(i).canUpdate = true;
 			}
+		}else if(s == "linksO"){
+			for(int i = 0; i < linksO.size(); i++){
+				linksO.get(i).canUpdate = true;
+			}
+		}else if(s == "linksD"){
+			for(int i = 0; i < linksD.size(); i++){
+				linksD.get(i).canUpdate = true;
+			}	
 		}
 	}
 	
-	public void randomScale(float v){
+	public void stepScale(float v){
 		cometsMaxScale += v*0.01f;
 		cometsMaxScale = constrain(cometsMaxScale, 0, 1);
 		for(int i = 0; i < comets.size(); i++){
@@ -672,9 +750,25 @@ public class Cameo extends PApplet {
 		}
 	}
 	
+	public void stepAlpha(int type, float v){
+		if(type == 0){
+			cometsMaxAlpha += v*0.01f;	
+			cometsMaxAlpha = constrain(cometsMaxAlpha, 0, 1);
+			for(int i = 0; i < comets.size(); i++){
+				comets.get(i).alphaVarCoeff = cometsMaxAlpha;
+			}
+		}else{
+			cometsLMaxAlpha += v*0.01f;
+			cometsLMaxAlpha = constrain(cometsLMaxAlpha, 0, 1);
+			for(int i = 0; i < cometsL.size(); i++){
+				cometsL.get(i).alphaVarCoeff = cometsLMaxAlpha;
+			}
+		}
+	}
+	
 	public void debug(){
 		textAlign(LEFT);
-		textSize(8);
+		textSize(10);
 		fill(100, 255, 100);
 		text("framerate: "+frameRate, 10, 10);
 		text("ch: "+channel, 10, 20);
@@ -686,7 +780,7 @@ public class Cameo extends PApplet {
 		text("linksOPos: "+linksOPos.size(), 10, 80);
 		text("linksDPos: "+linksDPos.size(), 10, 90);
 		text("grid: "+grid.size(), 10, 100);
-		text("cometsScaleInc: "+cometsScaleInc, 10, 210);
+		text("cometsScaleInc: "+cometsScaleInc, 10, 110);
 		text("cometsLScaleInc: "+cometsLScaleInc, 10, 120);
 		text("cometsScale: "+cometsScale, 10, 130);
 		text("cometsLScale: "+cometsLScale, 10, 140);
@@ -716,6 +810,15 @@ public class Cameo extends PApplet {
 			case 48:
 				rotateComet(0, 1);
 				break;
+			case 49:
+				increaseRadius(0, 0);
+				break;
+			case 50:
+				increaseRadius(1, 0);
+				break;
+			case 51:
+				resetRadius(0);
+				break;
 			case 36://----SECOND ROW
 				addComet(1);
 				break;
@@ -731,23 +834,14 @@ public class Cameo extends PApplet {
 			case 40:
 				rotateComet(1, 1);
 				break;
-			case 49:
-				addLink(0); //----ORTHOGONAL
-				break;
-			case 50:
-				resetLink(0, 0); //----RESET ONE
-				break;
-			case 51:
-				resetLink(0, 1); //----RESET ALL
-				break;
 			case 41:
-				addLink(1); //----DIAGONAL
+				increaseRadius(1, 0);
 				break;
 			case 42:
-				resetLink(1, 0); //----RESET ONE
+				increaseRadius(1, 1);
 				break;
 			case 43:
-				resetLink(1, 1); //----RESET ALL
+				resetRadius(1);
 				break;
 			default:
 				break;
@@ -787,6 +881,59 @@ public class Cameo extends PApplet {
 			default:
 				break;
 			}
+		}else if(c == 2){
+			switch(p){
+			case 44:
+				addLink(0); //----ORTHOGONAL
+				break;
+			case 45:
+				resetLink(0, 0); //----RESET ONE
+				break;
+			case 46:
+				resetLink(0, 1); //----RESET ALL
+				break;
+			case 47:
+				selectOne("linksO");
+				break;
+			case 48:
+				selectOne("linksOAdd");
+				break;
+			case 49:
+				selectAll("linksO");
+				break;
+			case 50:
+				removeLink(0);
+				break;
+			case 51:
+				clearLinks(0);
+				break;
+			case 36://----SECOND ROW
+				addLink(1); //----DIAGONAL
+				break;
+			case 37:
+				resetLink(1, 0); //----RESET ONE
+				break;
+			case 38:
+				resetLink(1, 1); //----RESET ALL
+				break;
+			case 39:
+				selectOne("linksD");
+				break;
+			case 40:
+				selectOne("linksDAdd");
+				break;
+			case 41:
+				selectAll("linksD");
+				break;
+			case 42:
+				removeLink(1);
+				break;
+			case 43:
+				clearLinks(1);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	
@@ -819,18 +966,18 @@ public class Cameo extends PApplet {
 				cometsVertexRange += v;
 				break;
 			case 14:
-				linksOStrokeWeight += v*0.5f;
+				cometsBrightnessVariation += v*0.1f;
 				break;
 			case 15:
-				linksOBrightness += v*5f;
+				cometsBrightnessInc += v*0.01f;
 				break;
 			case 16:
-				linksOLerpInc += v*0.001f;
+				stepAlpha(0, v);
 				break;
 			case 17:
 				selectComet(v, 1);
 			case 18://--------------------------------SECOND ROW
-				randomScale(v);
+				stepScale(v);
 				break;
 			case 19:
 				cometsLBrightness += v*4f;
@@ -842,13 +989,13 @@ public class Cameo extends PApplet {
 				cometsLVertexRange += v;
 				break;
 			case 22:
-				linksDStrokeWeight += v*0.5f;
+				cometsLBrightnessVariation += v*0.1f;
 				break;
 			case 23:
-				linksDBrightness += v*5f;
+				cometsLBrightnessInc += v*0.01f;
 				break;
 			case 24:
-				linksDLerpInc += v*0.001f;
+				stepAlpha(1, v);
 				break;
 			case 25:
 				selectComet(v, 0);
@@ -877,7 +1024,7 @@ public class Cameo extends PApplet {
 				lineAlpha += v*4f;
 				break;
 			case 16:
-				
+				//
 				break;
 			case 17:
 				
@@ -901,7 +1048,62 @@ public class Cameo extends PApplet {
 				lineSize += v;
 				break;
 			case 24:
-				
+				//
+				break;
+			default:
+				break;
+			}
+		}else if(c == 2){ // ------------------ LINKS
+			switch(n){
+			case 10:
+				linksOStrokeWeight += v*0.5f;
+				break;
+			case 11:
+				linksOBrightness += v*5f;
+				break;
+			case 12:
+				linksOLerpInc += v*0.001f;
+				break;
+			case 13:
+				linksOCurrentCoeff += v*0.3f;
+				break;
+			case 14:
+				linksOCurrentInc += v*0.01f;
+				break;
+			case 15:
+				linksOOriginCoeff += v*0.3f;
+				break;
+			case 16:
+				linksOOriginInc += v*0.01f;
+				break;
+			case 17:
+				linksOOriginPeriod += v*0.001f;
+				linksOCurrentPeriod += v*0.001f;
+				break;
+			case 18://--------------------------------SECOND ROW
+				linksDStrokeWeight += v*0.5f;
+				break;
+			case 19:
+				linksDBrightness += v*5f;
+				break;
+			case 20:
+				linksDLerpInc += v*0.001f;
+				break;
+			case 21:
+				linksDCurrentCoeff += v*0.3f;
+				break;
+			case 22:
+				linksDCurrentInc += v*0.01f;
+				break;
+			case 23:
+				linksDOriginCoeff += v*0.3f;
+				break;
+			case 24:
+				linksDOriginInc += v*0.01f;
+				break;
+			case 25:
+				linksDOriginPeriod += v*0.001f;
+				linksDCurrentPeriod += v*0.001f;
 				break;
 			default:
 				break;
@@ -944,21 +1146,41 @@ public class Cameo extends PApplet {
 	public void keepInRangeElements(){
 		cometsScaleInc = constrain(cometsScaleInc, 0.0f, 10.0f);
 		cometsBrightness = constrain(cometsBrightness, 0, 255);
+		cometsBrightnessVariation= constrain(cometsBrightnessVariation, 0, 1);
+		cometsBrightnessInc = constrain(cometsBrightnessInc, 0, 0.5f);
 		cometsLerpInc = constrain(cometsLerpInc, 0.005f, 0.2f);
 		cometsVertexRange = constrain(cometsVertexRange, xStep*0.25f*0.1f, xStep*0.25f*0.5f);
 		
 		cometsLScaleInc = constrain(cometsLScaleInc, 0.0f, 10.0f);
 		cometsLBrightness = constrain(cometsLBrightness, 0, 255);
+		cometsLBrightnessVariation= constrain(cometsLBrightnessVariation, 0, 1);
+		cometsLBrightnessInc = constrain(cometsLBrightnessInc, 0, 0.5f);
 		cometsLLerpInc = constrain(cometsLLerpInc, 0.0025f, 0.2f);
 		cometsLVertexRange = constrain(cometsLVertexRange, xStep*0.65f*0.1f, xStep*0.65f*0.5f);
 		
-		linksOStrokeWeight = constrain(linksOStrokeWeight, 5, 50);
+		linksOStrokeWeight = constrain(linksOStrokeWeight, 1, 50);
 		linksOBrightness = constrain(linksOBrightness, 0, 255);
 		linksOLerpInc = constrain(linksOLerpInc, 0.005f, 0.1f);
 		
-		linksDStrokeWeight = constrain(linksDStrokeWeight, 5, 50);
+		linksOCurrentCoeff = constrain(linksOCurrentCoeff, 0, 100);
+		linksOCurrentInc = constrain(linksOCurrentInc, 0, 1);
+		linksOCurrentPeriod = constrain(linksOCurrentPeriod, 0, 1f);
+		
+		linksOOriginCoeff = constrain(linksOOriginCoeff, 0, 100);
+		linksOOriginInc = constrain(linksOOriginInc, 0, 1f);
+		linksOOriginPeriod = constrain(linksOOriginPeriod, 0, 1f);
+		
+		linksDStrokeWeight = constrain(linksDStrokeWeight, 1, 50);
 		linksDBrightness = constrain(linksDBrightness, 0, 255);
 		linksDLerpInc = constrain(linksDLerpInc, 0.005f, 0.1f);
+		
+		linksDCurrentCoeff = constrain(linksDCurrentCoeff, 0, 100);
+		linksDCurrentInc = constrain(linksDCurrentInc, 0, 1);
+		linksDCurrentPeriod = constrain(linksDCurrentPeriod, 0, 1f);
+		
+		linksDOriginCoeff = constrain(linksDOriginCoeff, 0, 100);
+		linksDOriginInc = constrain(linksDOriginInc, 0, 1f);
+		linksDOriginPeriod = constrain(linksDOriginPeriod, 0, 1f);
 	}
 	
 	public void keepInRangeGrid(){
@@ -994,14 +1216,6 @@ public class Cameo extends PApplet {
 			clearComets(0);
 		}else if(key == 'd'){
 			clearLinks(1);
-		}else if(keyCode == RIGHT){
-			selectComet(2, 0);//select one
-		}else if(keyCode == LEFT){
-			selectComet(-2, 0); //select all
-		}else if(keyCode == UP){
-			selectComet(2, 1);
-		}else if(keyCode == DOWN){
-			selectComet(-2, 1);
 		}else if(key == 'v'){
 			removeComet(0);
 		}else if(key == ';'){
@@ -1020,6 +1234,50 @@ public class Cameo extends PApplet {
 			repopulate(linksDPos);
 		}else if (key == 'w'){
 			intro = true;
+		}else if(key == 'z'){
+			increaseRadius(0, 0);
+		}
+	}
+	
+	public void increaseRadius(int num, int type){
+		if(type == 0){
+			if(num == 0 && comets.size() > 0){
+				int index = (int)(random(comets.size()));
+				comets.get(index).maxVertex += comets.get(index).inc;
+				if(comets.get(index).maxVertex > 360)
+					comets.get(index).maxVertex = 360;
+			}else if(num == 1 && comets.size() > 0){
+				for(int i = 0; i < comets.size(); i++){
+					comets.get(i).maxVertex += comets.get(i).inc;
+					if(comets.get(i).maxVertex > 360)
+						comets.get(i).maxVertex = 360;
+				}
+			}
+		}else{
+			if(num == 0 && comets.size() > 0){
+				int index = (int)(random(comets.size()));
+				comets.get(index).maxVertex += comets.get(index).inc;
+				if(comets.get(index).maxVertex > 360)
+					comets.get(index).maxVertex = 360;
+			}else if(num == 1 && cometsL.size() > 0){
+				for(int i = 0; i < cometsL.size(); i++){
+					cometsL.get(i).maxVertex += cometsL.get(i).inc;
+					if(cometsL.get(i).maxVertex > 360)
+						cometsL.get(i).maxVertex = 360;
+				}
+			}
+		}
+	}
+	
+	public void resetRadius(int type){
+		if(type == 0){
+			for(int i = 0; i < comets.size(); i++){
+				comets.get(i).maxVertex = 180;
+			}
+		}else{
+			for(int i = 0; i < cometsL.size(); i++){
+				cometsL.get(i).maxVertex = 180;
+			}
 		}
 	}
 	

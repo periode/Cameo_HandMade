@@ -104,8 +104,8 @@ public class Cameo extends PApplet {
 		colorMode(HSB, 360, 100, 100);
 		
 		//----MIDI
-		MidiBus.list();
-		midi = new MidiBus(this, 0, 1);
+		//MidiBus.list();
+		//midi = new MidiBus(this, 0, 1);
 		
 		println("--------------");
 		println("handMade.setup(this);");
@@ -242,7 +242,7 @@ public class Cameo extends PApplet {
 	
 	public void settings(){
 		size(1024, 768);
-		fullScreen();
+		//fullScreen();
 	}
 	
 	public void update(){
