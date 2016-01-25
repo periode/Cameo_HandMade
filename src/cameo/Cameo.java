@@ -10,7 +10,8 @@ import themidibus.MidiBus;
 public class Cameo extends PApplet {
 
 	//----MIDI
-	MidiBus midi;
+	MidiBus midi_beatstep;
+	MidiBus midi_kontrol;
 	int channel = 0;
 	int pitch = 0;
 	int velocity = 0;
@@ -78,10 +79,14 @@ public class Cameo extends PApplet {
 	
 	static float alphaX;
 	static float sizeX;
+	static float thetaX;
+	float rotationX;
 	static float lineAlphaX;
 	
 	static float alphaY;
 	static float sizeY;
+	static float thetaY;
+	float rotationY;
 	static float lineAlphaY;
 	
 	static float lineAlpha;
@@ -97,6 +102,7 @@ public class Cameo extends PApplet {
 	static float cometsScale;
 	static float cometsScaleInc;
 	static float cometsBrightness;
+	static float cometsBrightnessStroke;
 	static float cometsBrightnessCoeff;
 	static float cometsBrightnessVal;
 	static float cometsBrightnessInc; 
@@ -108,6 +114,7 @@ public class Cameo extends PApplet {
 	static float cometsLScale;
 	float cometsLScaleInc;
 	static float cometsLBrightness;
+	static float cometsLBrightnessStroke;
 	static float cometsLBrightnessCoeff;
 	static float cometsLBrightnessVal;
 	static float cometsLBrightnessInc;
@@ -132,9 +139,14 @@ public class Cameo extends PApplet {
 		
 		//----MIDI
 		MidiBus.list();
-		midi = new MidiBus(this, 0, 1);
+		midi_beatstep = new MidiBus(this, "Arturia BeatStep", 1);
+		midi_beatstep.setBusName("beatstep");
+		
+		midi_kontrol = new MidiBus(this, "SLIDER/KNOB", 2);
+		midi_kontrol.setBusName("kontrol");
 		
 		println("--------------");
+		println("-"+midi_beatstep.getBusName());
 		println("handMade.setup(this);");
 		println("comets = new ArrayList<Comet>();");
 		println(">>done");
@@ -175,10 +187,14 @@ public class Cameo extends PApplet {
 		alphaX = 255;
 		lineAlphaX = 0;
 		sizeX = 5;
+		thetaX = 0;
+		rotationX = 0;
 		
 		alphaY = 255;
 		lineAlphaY = 0;
 		sizeY = 5;
+		thetaY = 0;
+		rotationY = 0;
 		
 		lineAlpha = 0;
 		lineSize = 0;
@@ -209,6 +225,7 @@ public class Cameo extends PApplet {
 		cometsScaleInc = 0f;
 		cometsVertexRange = xStep*0.25f*0.3f;
 		cometsBrightness = 255;
+		cometsBrightnessStroke = 255;
 		cometsBrightnessInc = 0.1f;
 		cometsLerpInc = 0.005f;
 		
@@ -216,6 +233,7 @@ public class Cameo extends PApplet {
 		cometsLScaleInc = 0f;
 		cometsLVertexRange = xStep*0.65f*0.2f;
 		cometsLBrightness = 255;
+		cometsLBrightnessStroke = 255;
 		cometsLBrightnessInc = 0.1f;
 		cometsLLerpInc = 0.005f;
 		
@@ -307,6 +325,9 @@ public class Cameo extends PApplet {
 			}
 		}
 		
+		thetaX += rotationX;
+		thetaY += rotationY;
+		
 		cosValX += cosIncX;
 		cosValY += cosIncY;
 		
@@ -368,7 +389,7 @@ public class Cameo extends PApplet {
 //		textAlign(CENTER);
 //		textSize(64);
 //		fill(255);
-//		text("c     o     n     n     e     c     t", width*0.5f, height*0.5f);
+//		text("hand_made", width*0.5f, height*0.5f);
 		if(end){
 			fill(0);
 			rect(0, 0, width, height);
@@ -788,65 +809,12 @@ public class Cameo extends PApplet {
 		text("cometspos: "+cometsPos.size(), 10, 160);
 	}
 	
-	public void noteOn(int c, int p, int v){
+	public void noteOn(int c, int p, int v, long t, String s){
 		channel = c;
 		pitch = p;
 		velocity = v;
 		
-		if(c == 0){
-			switch(p){
-			case 44:
-				addComet(0);
-				break;
-			case 45:
-				resetLerp(0);
-				break;
-			case 46:
-				moveVertex(0, 1);
-				break;
-			case 47:
-				rotateComet(0, 0);
-				break;
-			case 48:
-				rotateComet(0, 1);
-				break;
-			case 49:
-				increaseRadius(0, 0);
-				break;
-			case 50:
-				increaseRadius(1, 0);
-				break;
-			case 51:
-				resetRadius(0);
-				break;
-			case 36://----SECOND ROW
-				addComet(1);
-				break;
-			case 37:
-				resetLerp(1);
-				break;
-			case 38:
-				moveVertex(1, 1);
-				break;
-			case 39:
-				rotateComet(1, 0);
-				break;
-			case 40:
-				rotateComet(1, 1);
-				break;
-			case 41:
-				increaseRadius(1, 0);
-				break;
-			case 42:
-				increaseRadius(1, 1);
-				break;
-			case 43:
-				resetRadius(1);
-				break;
-			default:
-				break;
-			}
-		}else if(c == 1){
+		if(s == "kontrol"){
 			switch(p){
 			case 44:
 				if(!intro)
@@ -881,234 +849,317 @@ public class Cameo extends PApplet {
 			default:
 				break;
 			}
-		}else if(c == 2){
-			switch(p){
-			case 44:
-				addLink(0); //----ORTHOGONAL
-				break;
-			case 45:
-				resetLink(0, 0); //----RESET ONE
-				break;
-			case 46:
-				resetLink(0, 1); //----RESET ALL
-				break;
-			case 47:
-				selectOne("linksO");
-				break;
-			case 48:
-				selectOne("linksOAdd");
-				break;
-			case 49:
-				selectAll("linksO");
-				break;
-			case 50:
-				removeLink(0);
-				break;
-			case 51:
-				clearLinks(0);
-				break;
-			case 36://----SECOND ROW
-				addLink(1); //----DIAGONAL
-				break;
-			case 37:
-				resetLink(1, 0); //----RESET ONE
-				break;
-			case 38:
-				resetLink(1, 1); //----RESET ALL
-				break;
-			case 39:
-				selectOne("linksD");
-				break;
-			case 40:
-				selectOne("linksDAdd");
-				break;
-			case 41:
-				selectAll("linksD");
-				break;
-			case 42:
-				removeLink(1);
-				break;
-			case 43:
-				clearLinks(1);
-				break;
-			default:
-				break;
+		}
+		
+		if(s == "beatstep"){
+			if(c == 0){
+				switch(p){
+				case 44:
+					addComet(0);
+					break;
+				case 45:
+					resetLerp(0);
+					break;
+				case 46:
+					moveVertex(0, 1);
+					break;
+				case 47:
+					rotateComet(0, 0);
+					break;
+				case 48:
+					rotateComet(0, 1);
+					break;
+				case 49:
+					increaseRadius(0, 0);
+					break;
+				case 50:
+					increaseRadius(1, 0);
+					break;
+				case 51:
+					resetRadius(0);
+					break;
+				case 36://----SECOND ROW
+					addComet(1);
+					break;
+				case 37:
+					resetLerp(1);
+					break;
+				case 38:
+					moveVertex(1, 1);
+					break;
+				case 39:
+					rotateComet(1, 0);
+					break;
+				case 40:
+					rotateComet(1, 1);
+					break;
+				case 41:
+					increaseRadius(1, 0);
+					break;
+				case 42:
+					increaseRadius(1, 1);
+					break;
+				case 43:
+					resetRadius(1);
+					break;
+				default:
+					break;
+				}
+			}else if(c == 1){
+				switch(p){
+				case 44:
+					addLink(0); //----ORTHOGONAL
+					break;
+				case 45:
+					resetLink(0, 0); //----RESET ONE
+					break;
+				case 46:
+					resetLink(0, 1); //----RESET ALL
+					break;
+				case 47:
+					selectOne("linksO");
+					break;
+				case 48:
+					selectOne("linksOAdd");
+					break;
+				case 49:
+					selectAll("linksO");
+					break;
+				case 50:
+					removeLink(0);
+					break;
+				case 51:
+					clearLinks(0);
+					break;
+				case 36://----SECOND ROW
+					addLink(1); //----DIAGONAL
+					break;
+				case 37:
+					resetLink(1, 0); //----RESET ONE
+					break;
+				case 38:
+					resetLink(1, 1); //----RESET ALL
+					break;
+				case 39:
+					selectOne("linksD");
+					break;
+				case 40:
+					selectOne("linksDAdd");
+					break;
+				case 41:
+					selectAll("linksD");
+					break;
+				case 42:
+					removeLink(1);
+					break;
+				case 43:
+					clearLinks(1);
+					break;
+				default:
+					break;
+				}
 			}
 		}
+		
 	}
 	
-	public void controllerChange(int c, int n, int v){
+	public void controllerChange(int c, int n, int v, long t, String s){
 		channel = c;
 		note = n;
 		value = v;
 		
-		v = v - 64;//normalize
+		alphaX = constrain(alphaX, 0, 255);
+		cosIncX = constrain(cosIncX, 0.00025f, 0.2f);
+		cosCoeffX = constrain(cosCoeffX, 0, 360);
+		sizeX = constrain(sizeX, 5, 20);
+		lineAlphaX = constrain(lineAlphaX, 0, 255);
 		
-		if(n == 7){//reset stuff
-			if(v < -1)
-				resetElements();
-			else if(v > 1)
-				resetGrid();
-		}
+		alphaY = constrain(alphaY, 0, 255);
+		cosIncY = constrain(cosIncY, 0.00025f, 0.2f);
+		cosCoeffY = constrain(cosCoeffY, 0, 360);
+		sizeY = constrain(sizeY, 5, 20);
+		lineAlphaY = constrain(lineAlphaY, 0, 255);
 		
-		if(c == 0){
+		lineAlpha = constrain(lineAlpha, 0, 255);
+		lineSize = constrain(lineSize, 1, 5);
+		
+		if(s == "kontrol"){
 			switch(n){
-			case 10:
-				cometsScaleInc += v*0.1f;
+			case 0://--------------------------------FADERS
+				cosIncX = map(v, 0, 127, 0.00025f, 0.2f);
 				break;
-			case 11:
-				cometsBrightness += v*4f;
+			case 1:
+				cosIncY = map(v, 0, 127, 0.00025f, 0.2f);
 				break;
-			case 12:
-				cometsLerpInc += v*0.001f;
-				break;
-			case 13:
-				cometsVertexRange += v;
-				break;
-			case 14:
-				cometsBrightnessVariation += v*0.1f;
-				break;
-			case 15:
-				cometsBrightnessInc += v*0.01f;
-				break;
-			case 16:
-				stepAlpha(0, v);
-				break;
-			case 17:
-				selectComet(v, 1);
-			case 18://--------------------------------SECOND ROW
-				stepScale(v);
-				break;
-			case 19:
-				cometsLBrightness += v*4f;
-				break;
-			case 20:
-				cometsLLerpInc += v*0.001f;
-				break;
-			case 21:
-				cometsLVertexRange += v;
-				break;
-			case 22:
-				cometsLBrightnessVariation += v*0.1f;
-				break;
-			case 23:
-				cometsLBrightnessInc += v*0.01f;
-				break;
-			case 24:
-				stepAlpha(1, v);
-				break;
-			case 25:
-				selectComet(v, 0);
-				break;
-			default:
-				break;
-			}
-		}else if(c == 1){
-			switch(n){
-			case 10:
-				alphaX += v*4f;
-				break;
-			case 11:
-				cosIncX += v*0.01f;
-				break;
-			case 12:
-				cosCoeffX += v*1f;
-				break;
-			case 13:
-				sizeX += v;
-				break;
-			case 14:
-				lineAlphaX += v*4f;
-				break;
-			case 15:
-				lineAlpha += v*4f;
-				break;
-			case 16:
-				//
-				break;
-			case 17:
+			case 2:
+				alphaX = map(v, 0, 127, 0, 255);
 				
 				break;
-			case 18://--------------------------------SECOND ROW
-				alphaY += v*4f;
+			case 3:
+				alphaY = map(v, 0, 127, 0, 255);
+				
 				break;
-			case 19:
-				cosIncY += v*0.01f;
+			case 4:
+				sizeX = map(v, 0, 127, 5, 20);
 				break;
-			case 20:
-				cosCoeffY += v*1f;
+			case 5:
+				sizeY = map(v, 0, 127, 5, 20);
 				break;
-			case 21:
-				sizeY += v;
+			case 6:
+				rotationX = map(v, 0, 127, 0, 0.1f);
 				break;
-			case 22:
-				lineAlphaY += v*4f;
+			case 7:
+				rotationY = map(v, 0, 127, 0, 0.1f);
 				break;
-			case 23:
-				lineSize += v;
+			case 8://--------------------------------KNOBS
+				cosCoeffX = map(v, 0, 127, 0, 180);
 				break;
-			case 24:
-				//
+			case 9:
+				cosCoeffY = map(v, 0, 127, 0, 180);
 				break;
-			default:
-				break;
-			}
-		}else if(c == 2){ // ------------------ LINKS
-			switch(n){
 			case 10:
-				linksOStrokeWeight += v*0.5f;
+				lineAlphaX = map(v, 0, 127, 0, 255);
 				break;
 			case 11:
-				linksOBrightness += v*5f;
+				lineAlphaY = map(v, 0, 127, 0, 255);
 				break;
 			case 12:
-				linksOLerpInc += v*0.001f;
+				lineAlpha = map(v, 0, 127, 0, 255);
 				break;
 			case 13:
-				linksOCurrentCoeff += v*0.3f;
+				//idea : pulsating fill
 				break;
 			case 14:
-				linksOCurrentInc += v*0.01f;
+				//idea pulsating fill
 				break;
 			case 15:
-				linksOOriginCoeff += v*0.3f;
-				break;
-			case 16:
-				linksOOriginInc += v*0.01f;
-				break;
-			case 17:
-				linksOOriginPeriod += v*0.001f;
-				linksOCurrentPeriod += v*0.001f;
-				break;
-			case 18://--------------------------------SECOND ROW
-				linksDStrokeWeight += v*0.5f;
-				break;
-			case 19:
-				linksDBrightness += v*5f;
-				break;
-			case 20:
-				linksDLerpInc += v*0.001f;
-				break;
-			case 21:
-				linksDCurrentCoeff += v*0.3f;
-				break;
-			case 22:
-				linksDCurrentInc += v*0.01f;
-				break;
-			case 23:
-				linksDOriginCoeff += v*0.3f;
-				break;
-			case 24:
-				linksDOriginInc += v*0.01f;
-				break;
-			case 25:
-				linksDOriginPeriod += v*0.001f;
-				linksDCurrentPeriod += v*0.001f;
+//				lineSize = map(v, 0, 127, 1, 5);
 				break;
 			default:
 				break;
 			}
+		}else if(s == "beatstep"){
+			v = v - 64;//normalize
+			
+			if(n == 7){//reset stuff
+				if(v < -1)
+					resetElements();
+				else if(v > 1)
+					resetGrid();
+			}
+			
+			if(c == 0){
+				switch(n){
+				case 10:
+					cometsBrightnessStroke += v*0.001f;
+//					cometsScaleInc += v*0.1f;
+					break;
+				case 11:
+					cometsBrightness += v*4f;
+					break;
+				case 12:
+					cometsLerpInc += v*0.001f;
+					break;
+				case 13:
+					cometsVertexRange += v;
+					break;
+				case 14:
+					cometsBrightnessVariation += v*0.1f;
+					break;
+				case 15:
+					cometsBrightnessInc += v*0.01f;
+					break;
+				case 16:
+					stepAlpha(0, v);
+					break;
+				case 17:
+					selectComet(v, 1);
+				case 18://--------------------------------SECOND ROW
+					cometsLBrightnessStroke += v*4f;
+					break;
+				case 19:
+					cometsLBrightness += v*4f;
+					break;
+				case 20:
+					cometsLLerpInc += v*0.001f;
+					break;
+				case 21:
+					cometsLVertexRange += v;
+					break;
+				case 22:
+					cometsLBrightnessVariation += v*0.1f;
+					break;
+				case 23:
+					cometsLBrightnessInc += v*0.01f;
+					break;
+				case 24:
+					stepAlpha(1, v);
+					break;
+				case 25:
+					selectComet(v, 0);
+					break;
+				default:
+					break;
+				}
+			}else if(c == 1){ // ------------------ LINKS
+				switch(n){
+				case 10:
+					linksOStrokeWeight += v*0.5f;
+					break;
+				case 11:
+					linksOBrightness += v*5f;
+					break;
+				case 12:
+					linksOLerpInc += v*0.001f;
+					break;
+				case 13:
+					linksOCurrentCoeff += v*0.3f;
+					break;
+				case 14:
+					linksOCurrentInc += v*0.01f;
+					break;
+				case 15:
+					linksOOriginCoeff += v*0.3f;
+					break;
+				case 16:
+					linksOOriginInc += v*0.01f;
+					break;
+				case 17:
+					linksOOriginPeriod += v*0.001f;
+					linksOCurrentPeriod += v*0.001f;
+					break;
+				case 18://--------------------------------SECOND ROW
+					linksDStrokeWeight += v*0.5f;
+					break;
+				case 19:
+					linksDBrightness += v*5f;
+					break;
+				case 20:
+					linksDLerpInc += v*0.001f;
+					break;
+				case 21:
+					linksDCurrentCoeff += v*0.3f;
+					break;
+				case 22:
+					linksDCurrentInc += v*0.01f;
+					break;
+				case 23:
+					linksDOriginCoeff += v*0.3f;
+					break;
+				case 24:
+					linksDOriginInc += v*0.01f;
+					break;
+				case 25:
+					linksDOriginPeriod += v*0.001f;
+					linksDCurrentPeriod += v*0.001f;
+					break;
+				default:
+					break;
+				}
+			}
 		}
+		
+		
 		
 		keepInRangeGrid();
 	}

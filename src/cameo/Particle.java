@@ -13,6 +13,9 @@ public class Particle {
 	float sizeX;
 	float sizeY;
 	
+	float thetaX;
+	float thetaY;
+	
 	float alphaX;
 	float alphaY;
 	
@@ -32,6 +35,9 @@ public class Particle {
 		sizeX = 5;
 		sizeY = 5;
 		
+		alphaX = 255;
+		alphaY = 255;
+		
 		deltaX = 0;
 		deltaY = 0;
 		
@@ -41,12 +47,14 @@ public class Particle {
 	void update(){
 		if(canUpdate){
 			deltaY = PApplet.sin(Cameo.cosValY)*Cameo.cosCoeffY;
-			sizeY = Cameo.sizeX;
+			sizeY = Cameo.sizeY;
+			thetaY = Cameo.thetaY;
 			alphaY = Cameo.alphaY;
 			lineAlphaY = Cameo.lineAlphaY;
 			
 			deltaX = PApplet.cos(Cameo.cosValX)*Cameo.cosCoeffX;
 			sizeX = Cameo.sizeX;
+			thetaX = Cameo.thetaX;
 			alphaX = Cameo.alphaX;
 			lineAlphaX = Cameo.lineAlphaX;
 			
@@ -56,20 +64,28 @@ public class Particle {
 	}
 	
 	void display(){
-		
-		p.noStroke();
-		p.fill(255, alphaY);
+		p.rectMode(PApplet.CENTER);
+		p.stroke(255, alphaY);
+		p.noFill();
 
 		//p.stroke(0, alphaY);
 		float y = pos.y+deltaY;
-
-		p.rect(pos.x, y, sizeY, sizeY);
 		
-		p.fill(255, alphaX);
-		//p.stroke(0, alphaX);
+		p.pushMatrix();
+		p.translate(pos.x, y);
+		p.rotate(thetaY);
+		p.rect(0, 0, sizeY, sizeY);
+		p.popMatrix();
+		
+		p.noFill();
+		p.stroke(255, alphaX);
 		float x = pos.x+deltaX;
 
-		p.rect(x, pos.y, sizeX, sizeX);
+		p.pushMatrix();
+		p.translate(x, pos.y);
+		p.rotate(thetaX);
+		p.rect(0, 0, sizeX, sizeX);
+		p.popMatrix();
 		
 		p.strokeWeight(Cameo.lineSize);
 		p.stroke(255, lineAlphaY);
