@@ -126,6 +126,7 @@ public class Cameo extends PApplet {
 	float cometsMaxScale;
 	
 	//----INTRO
+	static boolean curtain = true;
 	static boolean intro = true;
 	ArrayList<PVector> introGrid;
 	ArrayList<Particle> introParticles;
@@ -386,10 +387,7 @@ public class Cameo extends PApplet {
 		}
 		
 		debug();
-//		textAlign(CENTER);
-//		textSize(64);
-//		fill(255);
-//		text("hand_made", width*0.5f, height*0.5f);
+
 		if(end){
 			fill(0);
 			rect(0, 0, width, height);
@@ -403,6 +401,15 @@ public class Cameo extends PApplet {
 //				line(p1.pos.x, p1.pos.y, p2.pos.x, p2.pos.y);
 //			}
 //		}
+		
+		if(curtain){
+			fill(0);
+			rect(0, 0, width*2, height*2);
+//			textAlign(CENTER);
+//			textSize(64);
+//			fill(255);
+//			text("h a n d _ m a d e", width*0.5f, height*0.5f);
+		}
 	}
 	
 	public void addSquare(){
@@ -444,10 +451,32 @@ public class Cameo extends PApplet {
 				c.targetVariations[i] += random(-cometsLVertexRange, cometsLVertexRange);
 				c.lerpValVariations[i] = 0;
 			}else{
-				int i = (int)random(cometsL.get(0).sides);;
+				int i = (int)random(cometsL.get(0).sides);
 				for(int index = 0; index < cometsL.size(); index++){
 					cometsL.get(index).targetVariations[i] += random(-cometsLVertexRange, cometsLVertexRange*2);
 					cometsL.get(index).lerpValVariations[i] = 0;
+				}
+			}
+		}
+	}
+	
+	public void resetVertex(int type, int number){
+		if(type == 0 && comets.size() > 0){
+			if(number == 0){
+				for(int i = 0; i < comets.size(); i++){
+					for(int j = 0; j < comets.get(i).targetVariations.length; j++){
+						comets.get(i).targetVariations[j] = 0;
+						comets.get(i).lerpValVariations[j] = 0;
+					}
+				}
+			}
+		}else if(type == 1 && cometsL.size() > 0){
+			if(number == 0){
+				for(int i = 0; i < cometsL.size(); i++){
+					for(int j = 0; j < comets.get(i).targetVariations.length; j++){
+						cometsL.get(i).targetVariations[j] = 0;
+						cometsL.get(i).lerpValVariations[j] = 0;
+					}
 				}
 			}
 		}
@@ -816,35 +845,38 @@ public class Cameo extends PApplet {
 		
 		if(s == "kontrol"){
 			switch(p){
-			case 44:
+			case 0:
 				if(!intro)
 					selectOne("particle");
 				else
 					selectOne("particleIntro");
 				break;
-			case 45:
+			case 1:
 				if(!intro)
 					selectOne("particleAdd");
 				else
 					selectOne("particleAddIntro");
 				break;
-			case 36:
+			case 16:
 				if(!intro)
 					selectAll("particle");
 				else
 					selectAll("particleIntro");
 				break;
-			case 50:
+			case 20:
 				clearComets(0);
 				break;
-			case 51:
+			case 21:
 				clearLinks(0);
 				break;
-			case 42:
+			case 22:
 				clearComets(1);
 				break;
-			case 43:
+			case 23:
 				clearLinks(1);
+				break;
+			case 41:
+				curtain = !curtain;
 				break;
 			default:
 				break;
@@ -864,10 +896,10 @@ public class Cameo extends PApplet {
 					moveVertex(0, 1);
 					break;
 				case 47:
-					rotateComet(0, 0);
+					resetVertex(0, 0);
 					break;
 				case 48:
-					rotateComet(0, 1);
+					rotateComet(0, 0);
 					break;
 				case 49:
 					increaseRadius(0, 0);
@@ -888,10 +920,10 @@ public class Cameo extends PApplet {
 					moveVertex(1, 1);
 					break;
 				case 39:
-					rotateComet(1, 0);
+					resetVertex(1, 0);
 					break;
 				case 40:
-					rotateComet(1, 1);
+					rotateComet(1, 0);
 					break;
 				case 41:
 					increaseRadius(1, 0);
@@ -968,28 +1000,13 @@ public class Cameo extends PApplet {
 		note = n;
 		value = v;
 		
-		alphaX = constrain(alphaX, 0, 255);
-		cosIncX = constrain(cosIncX, 0.00025f, 0.2f);
-		cosCoeffX = constrain(cosCoeffX, 0, 360);
-		sizeX = constrain(sizeX, 5, 20);
-		lineAlphaX = constrain(lineAlphaX, 0, 255);
-		
-		alphaY = constrain(alphaY, 0, 255);
-		cosIncY = constrain(cosIncY, 0.00025f, 0.2f);
-		cosCoeffY = constrain(cosCoeffY, 0, 360);
-		sizeY = constrain(sizeY, 5, 20);
-		lineAlphaY = constrain(lineAlphaY, 0, 255);
-		
-		lineAlpha = constrain(lineAlpha, 0, 255);
-		lineSize = constrain(lineSize, 1, 5);
-		
 		if(s == "kontrol"){
 			switch(n){
 			case 0://--------------------------------FADERS
-				cosIncX = map(v, 0, 127, 0.00025f, 0.2f);
+				cosIncX = map(v, 0, 127, 0.00025f, 0.1f);
 				break;
 			case 1:
-				cosIncY = map(v, 0, 127, 0.00025f, 0.2f);
+				cosIncY = map(v, 0, 127, 0.00025f, 0.1f);
 				break;
 			case 2:
 				alphaX = map(v, 0, 127, 0, 255);
@@ -1000,22 +1017,30 @@ public class Cameo extends PApplet {
 				
 				break;
 			case 4:
-				sizeX = map(v, 0, 127, 5, 20);
+				sizeX = map(v, 0, 127, 1, 20);
 				break;
 			case 5:
-				sizeY = map(v, 0, 127, 5, 20);
+				sizeY = map(v, 0, 127, 1, 20);
 				break;
 			case 6:
 				rotationX = map(v, 0, 127, 0, 0.1f);
+				if(v == 0)
+					Particle.thetaX_stabilizer = 0;
+				else
+					Particle.thetaX_stabilizer = 1;
 				break;
 			case 7:
 				rotationY = map(v, 0, 127, 0, 0.1f);
+				if(v == 0)
+					Particle.thetaY_stabilizer = 0;
+				else
+					Particle.thetaY_stabilizer = 1;
 				break;
 			case 8://--------------------------------KNOBS
-				cosCoeffX = map(v, 0, 127, 0, 180);
+				cosCoeffX = map(v, 0, 127, 0, 135);
 				break;
 			case 9:
-				cosCoeffY = map(v, 0, 127, 0, 180);
+				cosCoeffY = map(v, 0, 127, 0, 135);
 				break;
 			case 10:
 				lineAlphaX = map(v, 0, 127, 0, 255);
@@ -1028,12 +1053,14 @@ public class Cameo extends PApplet {
 				break;
 			case 13:
 				//idea : pulsating fill
+				Particle.fillX = map(v, 0, 127, 0, 255);
 				break;
 			case 14:
 				//idea pulsating fill
+				Particle.fillY = map(v, 0, 127, 0, 255);
 				break;
 			case 15:
-//				lineSize = map(v, 0, 127, 1, 5);
+				lineSize = map(v, 0, 127, 1, 5);
 				break;
 			default:
 				break;
@@ -1200,7 +1227,7 @@ public class Cameo extends PApplet {
 		cometsBrightnessVariation= constrain(cometsBrightnessVariation, 0, 1);
 		cometsBrightnessInc = constrain(cometsBrightnessInc, 0, 0.5f);
 		cometsLerpInc = constrain(cometsLerpInc, 0.005f, 0.2f);
-		cometsVertexRange = constrain(cometsVertexRange, xStep*0.25f*0.1f, xStep*0.25f*0.5f);
+		cometsVertexRange = constrain(cometsVertexRange, xStep*0.25f*0.1f, xStep*0.25f*1.5f);
 		
 		cometsLScaleInc = constrain(cometsLScaleInc, 0.0f, 10.0f);
 		cometsLBrightness = constrain(cometsLBrightness, 0, 255);
@@ -1238,13 +1265,13 @@ public class Cameo extends PApplet {
 		alphaX = constrain(alphaX, 0, 255);
 		cosIncX = constrain(cosIncX, 0.00025f, 0.2f);
 		cosCoeffX = constrain(cosCoeffX, 0, 360);
-		sizeX = constrain(sizeX, 5, 20);
+		sizeX = constrain(sizeX, 1, 20);
 		lineAlphaX = constrain(lineAlphaX, 0, 255);
 		
 		alphaY = constrain(alphaY, 0, 255);
 		cosIncY = constrain(cosIncY, 0.00025f, 0.2f);
 		cosCoeffY = constrain(cosCoeffY, 0, 360);
-		sizeY = constrain(sizeY, 5, 20);
+		sizeY = constrain(sizeY, 1, 20);
 		lineAlphaY = constrain(lineAlphaY, 0, 255);
 		
 		lineAlpha = constrain(lineAlpha, 0, 255);

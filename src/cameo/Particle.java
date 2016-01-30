@@ -13,6 +13,9 @@ public class Particle {
 	float sizeX;
 	float sizeY;
 	
+	static float fillX = 0;
+	static float fillY = 0;
+	
 	float thetaX;
 	float thetaY;
 	
@@ -27,16 +30,19 @@ public class Particle {
 	
 	boolean canUpdate;
 	
+	static float thetaX_stabilizer = 1;
+	static float thetaY_stabilizer = 1;
+	
 	Particle(){}
 	
 	Particle(float _x, float _y, PApplet _p){
 		p = _p;
 		pos = new PVector(_x, _y);	
-		sizeX = 5;
-		sizeY = 5;
+		sizeX = 1;
+		sizeY = 1;
 		
-		alphaX = 255;
-		alphaY = 255;
+		alphaX = 0;
+		alphaY = 0;
 		
 		deltaX = 0;
 		deltaY = 0;
@@ -59,31 +65,31 @@ public class Particle {
 			lineAlphaX = Cameo.lineAlphaX;
 			
 			lineAlpha = Cameo.lineAlpha;
-			lineSize = Cameo.lineSize;	
+			lineSize = Cameo.lineSize;
 		}
 	}
 	
 	void display(){
 		p.rectMode(PApplet.CENTER);
+		p.strokeWeight(lineSize);
 		p.stroke(255, alphaY);
-		p.noFill();
+		p.fill(255, fillY);
 
-		//p.stroke(0, alphaY);
 		float y = pos.y+deltaY;
 		
 		p.pushMatrix();
 		p.translate(pos.x, y);
-		p.rotate(thetaY);
+		p.rotate(-thetaY*thetaY_stabilizer);
 		p.rect(0, 0, sizeY, sizeY);
 		p.popMatrix();
 		
-		p.noFill();
+		p.fill(255, fillX);
 		p.stroke(255, alphaX);
 		float x = pos.x+deltaX;
 
 		p.pushMatrix();
 		p.translate(x, pos.y);
-		p.rotate(thetaX);
+		p.rotate(thetaX*thetaX_stabilizer);
 		p.rect(0, 0, sizeX, sizeX);
 		p.popMatrix();
 		

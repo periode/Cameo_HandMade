@@ -150,13 +150,13 @@ public class Comet {
 			if(!disappear){
 				if(type == 0){
 					scale = 1+PApplet.cos(PApplet.radians(Cameo.cometsScale+scaleVar*scaleVarCoeff))*0.25f*Cameo.cometsScaleInc;
-//					alphaFill = Cameo.cometsBrightness*PApplet.map(PApplet.cos(Cameo.cometsBrightnessVal+alphaVar*alphaVarCoeff), -1, 1, 0, 1)*Cameo.cometsBrightnessVariation;//
-					alphaFill = Cameo.cometsBrightness+Cameo.cometsBrightness*Cameo.cometsBrightnessCoeff;
+					alphaFill = Cameo.cometsBrightness+Cameo.cometsBrightness*PApplet.map(PApplet.cos(Cameo.cometsBrightnessVal+alphaVar*alphaVarCoeff), -1, 1, 0, 1)*Cameo.cometsBrightnessVariation;//
+//					alphaFill = Cameo.cometsBrightness+Cameo.cometsBrightness*Cameo.cometsBrightnessCoeff;
 					alphaStroke = Cameo.cometsBrightnessStroke+Cameo.cometsBrightnessStroke*Cameo.cometsBrightnessCoeff;
 				}else{
 					scale = 1+PApplet.cos(PApplet.radians(Cameo.cometsScale+scaleVar*scaleVarCoeff))*0.25f*Cameo.cometsScaleInc;	
-//					alphaFill = Cameo.cometsLBrightness*PApplet.map(PApplet.cos(Cameo.cometsLBrightnessVal+alphaVar*alphaVarCoeff), -1, 1, 0, 1)*Cameo.cometsLBrightnessVariation;
-					alphaFill = Cameo.cometsLBrightness+Cameo.cometsLBrightness*Cameo.cometsLBrightnessCoeff;
+					alphaFill = Cameo.cometsLBrightness+Cameo.cometsLBrightness*PApplet.map(PApplet.cos(Cameo.cometsLBrightnessVal+alphaVar*alphaVarCoeff), -1, 1, 0, 1)*Cameo.cometsLBrightnessVariation;
+//					alphaFill = Cameo.cometsLBrightness+Cameo.cometsLBrightness*Cameo.cometsLBrightnessCoeff;
 					alphaStroke = Cameo.cometsLBrightnessStroke+Cameo.cometsLBrightnessStroke*Cameo.cometsLBrightnessCoeff;
 				}
 			}
@@ -189,7 +189,6 @@ public class Comet {
 		p.stroke(color, alphaStroke);
 		p.pushMatrix();
 		p.translate(pos.x, pos.y);
-//		p.scale(scale);
 		p.rotate(PApplet.radians(currentRotation));
 		p.beginShape();
 		p.strokeJoin(PApplet.ROUND);

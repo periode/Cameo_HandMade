@@ -85,7 +85,7 @@ public class Link {
 	
 	void update(){
 		if(canUpdate){
-			if(lerpVal < 1){
+			if(lerpVal < 1 && !decrease){
 				current1 = PVector.lerp(origin, destination1, lerpVal);
 				current2 = PVector.lerp(origin, destination2, lerpVal);
 				lerpVal += lerpInc;
@@ -119,7 +119,9 @@ public class Link {
 	}
 	
 	void decrease(){
-		lerpVal -= 0.075f;
+		lerpVal -= lerpInc;
+		current1 = PVector.lerp(origin, destination1, lerpVal);
+		current2 = PVector.lerp(origin, destination2, lerpVal);
 		if(lerpVal < 0){
 			if(type == 0){
 				if(!Cameo.intro && pos.x < 960)
