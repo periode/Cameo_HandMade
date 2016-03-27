@@ -180,20 +180,20 @@ public class Cameo extends PApplet {
 		cosValX = 0;
 		cosValY = 0;
 		noiseY = 0;
-		cosIncX = 0.001f;
-		cosIncY = 0.001f;
+		cosIncX = 0f;
+		cosIncY = 0f;
 		cosCoeffX = 0.1f;
 		cosCoeffY = 0.1f;
 		
 		alphaX = 255;
 		lineAlphaX = 0;
-		sizeX = 5;
+		sizeX = 1;
 		thetaX = 0;
 		rotationX = 0;
 		
 		alphaY = 255;
 		lineAlphaY = 0;
-		sizeY = 5;
+		sizeY = 1;
 		thetaY = 0;
 		rotationY = 0;
 		
@@ -290,7 +290,7 @@ public class Cameo extends PApplet {
 	
 	public void settings(){
 		//size(1024, 768);
-		fullScreen();
+		fullScreen(P3D);
 	}
 	
 	public void update(){
@@ -347,7 +347,7 @@ public class Cameo extends PApplet {
 //		translate(440, 150);
 		update();
 		noCursor();
-		background(background_color);
+		background(0);
 		colorMode(HSB);
 		rectMode(CENTER);
 		strokeCap(SQUARE);
@@ -386,7 +386,7 @@ public class Cameo extends PApplet {
 			linksD.get(i).display();
 		}
 		
-		debug();
+//		debug();
 
 		if(end){
 			fill(0);
@@ -473,7 +473,7 @@ public class Cameo extends PApplet {
 		}else if(type == 1 && cometsL.size() > 0){
 			if(number == 0){
 				for(int i = 0; i < cometsL.size(); i++){
-					for(int j = 0; j < comets.get(i).targetVariations.length; j++){
+					for(int j = 0; j < cometsL.get(i).targetVariations.length; j++){
 						cometsL.get(i).targetVariations[j] = 0;
 						cometsL.get(i).lerpValVariations[j] = 0;
 					}
@@ -499,11 +499,11 @@ public class Cameo extends PApplet {
 			if(number == 0){
 				int index = (int)(random(cometsL.size()));
 				Comet c = cometsL.get(index);
-				c.targetRotation += 90;
+				c.targetRotation += 180;
 				c.lerpValRotation = 0;
 			}else{
 				for(int i = 0; i < cometsL.size(); i++){
-					cometsL.get(i).targetRotation += 90;
+					cometsL.get(i).targetRotation += 180;
 					cometsL.get(i).lerpValRotation = 0;
 				}
 			}
@@ -511,17 +511,22 @@ public class Cameo extends PApplet {
 		
 	}
 	
-	public void resetLerp(int type){
+	public void resetLerp(int type, int num){
 		if(type == 0){
 			for(int i = 0; i < comets.size(); i++){
 				if(comets.get(i).canUpdate)
 					comets.get(i).lerpValRad = 0;
 			}
 		}else{
-			for(int i = 0; i < cometsL.size(); i++){
-				if(cometsL.get(i).canUpdate)
-					cometsL.get(i).lerpValRad = 0;
+			if(num == 1){
+				for(int i = 0; i < cometsL.size(); i++){
+					if(cometsL.get(i).canUpdate)
+						cometsL.get(i).lerpValRad = 0;
+				}
+			}else{
+				cometsL.get((int)random(cometsL.size())).lerpValRad = 0;
 			}
+
 		}
 	}
 	
@@ -890,7 +895,7 @@ public class Cameo extends PApplet {
 					addComet(0);
 					break;
 				case 45:
-					resetLerp(0);
+					resetLerp(0, 1);
 					break;
 				case 46:
 					moveVertex(0, 1);
@@ -908,19 +913,19 @@ public class Cameo extends PApplet {
 					increaseRadius(1, 0);
 					break;
 				case 51:
-					resetRadius(0);
+					resetRadius(0, 0);
 					break;
 				case 36://----SECOND ROW
 					addComet(1);
 					break;
 				case 37:
-					resetLerp(1);
+					resetLerp(1, 0);
 					break;
 				case 38:
-					moveVertex(1, 1);
+					resetLerp(1, 1);
 					break;
 				case 39:
-					resetVertex(1, 0);
+					rotateComet(1, 1);
 					break;
 				case 40:
 					rotateComet(1, 0);
@@ -932,7 +937,7 @@ public class Cameo extends PApplet {
 					increaseRadius(1, 1);
 					break;
 				case 43:
-					resetRadius(1);
+					resetRadius(1, 0);
 					break;
 				default:
 					break;
@@ -1079,7 +1084,6 @@ public class Cameo extends PApplet {
 				switch(n){
 				case 10:
 					cometsBrightnessStroke += v*0.001f;
-//					cometsScaleInc += v*0.1f;
 					break;
 				case 11:
 					cometsBrightness += v*4f;
@@ -1111,7 +1115,8 @@ public class Cameo extends PApplet {
 					cometsLLerpInc += v*0.001f;
 					break;
 				case 21:
-					cometsLVertexRange += v;
+					Comet.swinc += v*0.001f;
+					Comet.swinc = constrain(Comet.swinc, 0, 1);
 					break;
 				case 22:
 					cometsLBrightnessVariation += v*0.1f;
@@ -1120,7 +1125,8 @@ public class Cameo extends PApplet {
 					cometsLBrightnessInc += v*0.01f;
 					break;
 				case 24:
-					stepAlpha(1, v);
+					Comet.swcoeff += v*0.05f;
+					Comet.swcoeff = constrain(Comet.swcoeff, 0, 10);
 					break;
 				case 25:
 					selectComet(v, 0);
@@ -1143,7 +1149,7 @@ public class Cameo extends PApplet {
 					linksOCurrentCoeff += v*0.3f;
 					break;
 				case 14:
-					linksOCurrentInc += v*0.01f;
+					linksOCurrentInc += v*0.001f;
 					break;
 				case 15:
 					linksOOriginCoeff += v*0.3f;
@@ -1168,7 +1174,7 @@ public class Cameo extends PApplet {
 					linksDCurrentCoeff += v*0.3f;
 					break;
 				case 22:
-					linksDCurrentInc += v*0.01f;
+					linksDCurrentInc += v*0.001f;
 					break;
 				case 23:
 					linksDOriginCoeff += v*0.3f;
@@ -1332,29 +1338,31 @@ public class Cameo extends PApplet {
 				}
 			}
 		}else{
-			if(num == 0 && comets.size() > 0){
-				int index = (int)(random(comets.size()));
-				comets.get(index).maxVertex += comets.get(index).inc;
-				if(comets.get(index).maxVertex > 360)
-					comets.get(index).maxVertex = 360;
+			if(num == 0 && cometsL.size() > 0){
+				int index = (int)(random(cometsL.size()));
+//				comets.get(index).maxVertex += comets.get(index).inc;
+//				if(comets.get(index).maxVertex > 360)
+//					comets.get(index).maxVertex = 360;
+				cometsL.get(index).max_arc = 0;
 			}else if(num == 1 && cometsL.size() > 0){
 				for(int i = 0; i < cometsL.size(); i++){
-					cometsL.get(i).maxVertex += cometsL.get(i).inc;
-					if(cometsL.get(i).maxVertex > 360)
-						cometsL.get(i).maxVertex = 360;
+//					cometsL.get(i).maxVertex += cometsL.get(i).inc;
+//					if(cometsL.get(i).maxVertex > 360)
+//						cometsL.get(i).maxVertex = 360;
+					cometsL.get(i).max_arc = 0;
 				}
 			}
 		}
 	}
 	
-	public void resetRadius(int type){
+	public void resetRadius(int type, int num){
 		if(type == 0){
 			for(int i = 0; i < comets.size(); i++){
 				comets.get(i).maxVertex = 180;
 			}
 		}else{
 			for(int i = 0; i < cometsL.size(); i++){
-				cometsL.get(i).maxVertex = 180;
+				cometsL.get(i).innerRad = 0;
 			}
 		}
 	}

@@ -96,23 +96,24 @@ public class Link {
 	
 			if(type == 0){
 				lerpInc = Cameo.linksOLerpInc;
-				sw = Cameo.linksOStrokeWeight;
+				sw = Cameo.linksOStrokeWeight+PApplet.tan(p.millis()*0.05f*Cameo.linksOCurrentInc)*Cameo.linksOCurrentCoeff;
 				alpha = Cameo.linksOBrightness;
-				currentOffset = PApplet.cos(currentOVal + currentOPeriod*Cameo.linksOCurrentPeriod)*Cameo.linksOCurrentCoeff;
+//				currentOffset = PApplet.cos(currentOVal + currentOPeriod*Cameo.linksOCurrentPeriod)*Cameo.linksOCurrentCoeff;
 				currentOVal += Cameo.linksOCurrentInc;
 				originOffset = PApplet.cos(originOVal + originOPeriod*Cameo.linksOOriginPeriod)*Cameo.linksOOriginCoeff;
 				originOVal += Cameo.linksOOriginInc;
 				
 			}else{
 				lerpInc = Cameo.linksDLerpInc;
-				sw = Cameo.linksDStrokeWeight;
+				sw = Cameo.linksDStrokeWeight+PApplet.tan(p.millis()*0.05f*Cameo.linksDCurrentInc)*Cameo.linksDCurrentCoeff;
 				alpha = Cameo.linksDBrightness;
-				currentOffset = PApplet.cos(currentDVal + currentDPeriod*Cameo.linksDCurrentPeriod)*Cameo.linksDCurrentCoeff;
+//				currentOffset = PApplet.cos(currentDVal + currentDPeriod*Cameo.linksDCurrentPeriod)*Cameo.linksDCurrentCoeff;
 				currentDVal += Cameo.linksDCurrentInc;
 				originOffset = PApplet.cos(originDVal + originDPeriod*Cameo.linksDOriginPeriod)*Cameo.linksDOriginCoeff;
 				originDVal += Cameo.linksDOriginInc;
 			}
 			
+
 			if(decrease)
 				decrease();
 		}
