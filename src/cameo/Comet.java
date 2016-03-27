@@ -178,7 +178,9 @@ public class Comet {
 			max_arc += 0.1f;
 		
 		if(innerRad < rad*scale)
-			innerRad += 0.5f;
+			innerRad += 5f;
+		
+		innerRad = PApplet.min(innerRad, rad*scale);
 		
 
 		if(disappear){

@@ -18,8 +18,11 @@ public class Cameo extends PApplet {
 	int note;
 	int value = 0;
 	
+	boolean showDebug = false;
+	
 	//----COLORS
 	int background_color;
+	float bg_alpha;
 	int foreground_color;
 	static int[] colors;
 	
@@ -161,6 +164,7 @@ public class Cameo extends PApplet {
 		
 		//----COLORS
 		background_color = 0;
+		bg_alpha = 10;
 		foreground_color = 255;
 		colors = new int[5];
 		//RGB
@@ -348,9 +352,16 @@ public class Cameo extends PApplet {
 //		translate(440, 150);
 		update();
 		noCursor();
-		background(0);
+//		background(0);
+
 		colorMode(HSB);
 		rectMode(CENTER);
+//		stroke(0);
+		fill(0, bg_alpha);
+		pushMatrix();
+		translate(0, 0, -80);
+		rect(width*0.5f, height*0.5f, width*3, height*3);
+		popMatrix();
 		strokeCap(SQUARE);
 		fill(255);
 		strokeWeight(1);
@@ -387,29 +398,12 @@ public class Cameo extends PApplet {
 			linksD.get(i).display();
 		}
 		
-//		debug();
+		if(showDebug)
+		debug();
 
 		if(end){
 			fill(0);
 			rect(0, 0, width, height);
-		}
-//		stroke(255);
-//		strokeWeight(1);
-//		for(int i = 1; i < particles.size(); i+=3){
-//			for(int j = 0; j < particles.size(); j+=3){
-//				Particle p1 = particles.get(i);
-//				Particle p2 = particles.get(j);
-//				line(p1.pos.x, p1.pos.y, p2.pos.x, p2.pos.y);
-//			}
-//		}
-		
-		if(curtain){
-			fill(0);
-			rect(0, 0, width*2, height*2);
-//			textAlign(CENTER);
-//			textSize(64);
-//			fill(255);
-//			text("h a n d _ m a d e", width*0.5f, height*0.5f);
 		}
 	}
 	
@@ -827,19 +821,19 @@ public class Cameo extends PApplet {
 		textSize(10);
 		fill(100, 255, 100);
 		text("framerate: "+frameRate, 10, 10);
-		text("ch: "+channel, 10, 20);
+		text("channel: "+channel, 10, 20);
 		text("pitch: "+pitch, 10, 30);
 		text("vel: "+velocity, 10, 40);
 		text("note: "+note, 10, 50);
-		text("val: "+value, 10, 60);
-		text("squares: "+squares.size(), 10, 70);
-		text("linksOPos: "+linksOPos.size(), 10, 80);
-		text("linksDPos: "+linksDPos.size(), 10, 90);
+		text("value: "+value, 10, 60);
+		text("particles: "+squares.size(), 10, 70);
+		text("center: "+linksOPos.size(), 10, 80);
+		text("off: "+linksDPos.size(), 10, 90);
 		text("grid: "+grid.size(), 10, 100);
-		text("cometsScaleInc: "+cometsScaleInc, 10, 110);
-		text("cometsLScaleInc: "+cometsLScaleInc, 10, 120);
-		text("cometsScale: "+cometsScale, 10, 130);
-		text("cometsLScale: "+cometsLScale, 10, 140);
+		text("scale: "+cometsScaleInc, 10, 110);
+		text("disc_scale_inc: "+cometsLScaleInc, 10, 120);
+		text("comet_scale: "+cometsScale, 10, 130);
+		text("discs: "+cometsL.size(), 10, 140);
 		text("comets: "+comets.size(), 10, 150);
 		text("cometspos: "+cometsPos.size(), 10, 160);
 	}
@@ -1075,10 +1069,8 @@ public class Cameo extends PApplet {
 			v = v - 64;//normalize
 			
 			if(n == 7){//reset stuff
-				if(v < -1)
-					resetElements();
-				else if(v > 1)
-					resetGrid();
+				bg_alpha += v*3;
+				bg_alpha = constrain(bg_alpha, 5, 255);
 			}
 			
 			if(c == 0){
@@ -1369,7 +1361,7 @@ public class Cameo extends PApplet {
 	}
 	
 	public void mousePressed(){
-		addComet(0);
+		showDebug = !showDebug;
 	}
 	
 	public static void main(String _args[]) {
