@@ -21,7 +21,7 @@ public class Cameo extends PApplet {
 	//----COLORS
 	int background_color;
 	int foreground_color;
-	int[] colors;
+	static int[] colors;
 	
 	//----GRID
 	ArrayList<PVector> grid;
@@ -29,6 +29,7 @@ public class Cameo extends PApplet {
 	int rows;
 	static float xStep;
 	float yStep;
+	ArrayList<Integer> grid_color;
 	
 	//----NOISE
 	static float cosValX;
@@ -247,7 +248,7 @@ public class Cameo extends PApplet {
 		
 		xStep = width/cols;
 		yStep = height/rows;
-		
+		grid_color = new ArrayList<Integer>();
 		grid = new ArrayList<PVector>();
 		for(float x = xStep; x < width; x += xStep){
 			for(float y = yStep; y < height; y += yStep){
@@ -1022,10 +1023,10 @@ public class Cameo extends PApplet {
 				
 				break;
 			case 4:
-				sizeX = map(v, 0, 127, 1, 20);
+				sizeX = map(v, 0, 127, 1, 80);
 				break;
 			case 5:
-				sizeY = map(v, 0, 127, 1, 20);
+				sizeY = map(v, 0, 127, 1, 80);
 				break;
 			case 6:
 				rotationX = map(v, 0, 127, 0, 0.1f);
@@ -1271,13 +1272,13 @@ public class Cameo extends PApplet {
 		alphaX = constrain(alphaX, 0, 255);
 		cosIncX = constrain(cosIncX, 0.00025f, 0.2f);
 		cosCoeffX = constrain(cosCoeffX, 0, 360);
-		sizeX = constrain(sizeX, 1, 20);
+		sizeX = constrain(sizeX, 1, 80);
 		lineAlphaX = constrain(lineAlphaX, 0, 255);
 		
 		alphaY = constrain(alphaY, 0, 255);
 		cosIncY = constrain(cosIncY, 0.00025f, 0.2f);
 		cosCoeffY = constrain(cosCoeffY, 0, 360);
-		sizeY = constrain(sizeY, 1, 20);
+		sizeY = constrain(sizeY, 1, 80);
 		lineAlphaY = constrain(lineAlphaY, 0, 255);
 		
 		lineAlpha = constrain(lineAlpha, 0, 255);

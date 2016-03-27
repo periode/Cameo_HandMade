@@ -33,6 +33,8 @@ public class Particle {
 	static float thetaX_stabilizer = 1;
 	static float thetaY_stabilizer = 1;
 	
+	int col;
+	
 	Particle(){}
 	
 	Particle(float _x, float _y, PApplet _p){
@@ -46,6 +48,8 @@ public class Particle {
 		
 		deltaX = 0;
 		deltaY = 0;
+		
+		col = Cameo.colors[(int)p.random(Cameo.colors.length)];
 		
 		canUpdate = true;
 	}
@@ -73,7 +77,7 @@ public class Particle {
 		p.rectMode(PApplet.CENTER);
 		p.strokeWeight(lineSize);
 		p.stroke(255, alphaY);
-		p.fill(255, fillY);
+		p.fill(col, fillY);
 
 		float y = pos.y+deltaY;
 		
@@ -83,7 +87,7 @@ public class Particle {
 		p.rect(0, 0, sizeY, sizeY);
 		p.popMatrix();
 		
-		p.fill(255, fillX);
+		p.fill(col, fillX);
 		p.stroke(255, alphaX);
 		float x = pos.x+deltaX;
 
